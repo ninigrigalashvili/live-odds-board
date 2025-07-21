@@ -1,9 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Box, Text, HStack, Badge } from "@chakra-ui/react";
+import { FixedSizeList as List } from "react-window";
 
 import MatchRow from "@/components/MatchRow";
 import type { Match } from "@/utils/constants";
 import { generateMockMatches } from "@/services/mockData";
+import { ROW_HEIGHT, TOTAL_MATCHES } from "@/utils/constants";
 
 const OddsBoard = () => {
   // State management
@@ -11,11 +13,14 @@ const OddsBoard = () => {
   const [selectedOdds, setSelectedOdds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Refs
+  const listRef = useRef<List>(null);
+
   // Initialize matches data (first 100 for testing)
   useEffect(() => {
     const initializeMatches = async () => {
       setIsLoading(true);
-      const mockMatches = generateMockMatches(100);
+      const mockMatches = generateMockMatches(TOTAL_MATCHES);
       setMatches(mockMatches);
       setIsLoading(false);
     };
@@ -33,6 +38,25 @@ const OddsBoard = () => {
       }
     });
   }, []);
+
+  // Row renderer for react-window
+  const Row = useCallback(
+    ({ index, style }: { index: number; style: React.CSSProperties }) => {
+      const match = matches[index];
+      if (!match) return null;
+
+      return (
+        <MatchRow
+          match={match}
+          selectedOdds={selectedOdds}
+          onOddsSelect={handleOddsSelect}
+          highlights={{}}
+          style={style}
+        />
+      );
+    },
+    [matches, selectedOdds, handleOddsSelect]
+  );
 
   // Calculate statistics
   const stats = useMemo(() => {
@@ -76,19 +100,18 @@ const OddsBoard = () => {
           Basic OddsBoard (First 100 matches)
         </Text>
       </HStack>
-
-      {/* Matches List */}
-      <Box h="calc(100% - 60px)" overflowY="auto">
-        {matches.map((match) => (
-          <MatchRow
-            key={match.id}
-            match={match}
-            selectedOdds={selectedOdds}
-            onOddsSelect={handleOddsSelect}
-            highlights={{}}
-            style={{}}
-          />
-        ))}
+      {/* React-Window Virtualized List */}
+      <Box h="calc(100% - 60px)">
+        <List
+          ref={listRef}
+          height={window.innerHeight - 140} // Adjust based on header heights
+          itemCount={matches.length}
+          itemSize={ROW_HEIGHT}
+          overscanCount={10} // Render 10 extra items for smooth scrolling
+          width="100%"
+        >
+          {Row}
+        </List>
       </Box>
     </Box>
   );

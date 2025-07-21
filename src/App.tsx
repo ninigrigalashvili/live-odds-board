@@ -1,5 +1,6 @@
 import { Box, Container, Heading } from "@chakra-ui/react";
 import { generateMockMatches } from "./services/mockData";
+import OddsBoard from "./components/OddsBoard";
 
 function App() {
   const matches = generateMockMatches(10000);
@@ -17,7 +18,7 @@ function App() {
           </Heading>
         </Box>
         <Box p={4}>
-          <Heading size="md">Coming soon...</Heading>
+          <OddsBoard />
         </Box>
       </Box>
     </Container>
