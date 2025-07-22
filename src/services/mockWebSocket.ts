@@ -1,8 +1,5 @@
 import { UPDATE_INTERVAL } from "@/utils/constants";
 
-/**
- * Type for an odds update message.
- */
 export interface OddsUpdateMessage {
   type: "odds_update";
   data: {
@@ -18,13 +15,11 @@ export type WebSocketMessage = OddsUpdateMessage;
 
 type Listener = (message: OddsUpdateMessage) => void;
 
-/**
- * Creates a mock WebSocket-like service.
- */
 export const createMockWebSocket = () => {
   let listeners: Listener[] = [];
   let isConnected = false;
   let interval: ReturnType<typeof setInterval> | null = null;
+  let visibleRange = { start: 0, end: 20 }; // Default visible range
 
   const connect = () => {
     isConnected = true;
@@ -47,13 +42,27 @@ export const createMockWebSocket = () => {
     listeners = listeners.filter((listener) => listener !== callback);
   };
 
+  const setVisibleRange = (start: number, end: number) => {
+    visibleRange = { start, end };
+  };
+
   const sendRandomUpdate = () => {
     if (!isConnected) return;
+
+    let matchId: number;
+
+    // 70% chance to update visible matches, 30% chance for any match
+    if (Math.random() < 0.7 && visibleRange.end > visibleRange.start) {
+      const visibleCount = visibleRange.end - visibleRange.start + 1;
+      matchId = Math.floor(Math.random() * visibleCount) + visibleRange.start;
+    } else {
+      matchId = Math.floor(Math.random() * 10000);
+    }
 
     const update: OddsUpdateMessage = {
       type: "odds_update",
       data: {
-        matchId: Math.floor(Math.random() * 10000),
+        matchId,
         category: getRandomCategory(),
         optionIndex: Math.floor(Math.random() * 3),
         newValue: (Math.random() * 4 + 1).toFixed(2),
@@ -74,6 +83,7 @@ export const createMockWebSocket = () => {
     disconnect,
     addListener,
     removeListener,
+    setVisibleRange,
     isConnected: () => isConnected,
   };
 };
