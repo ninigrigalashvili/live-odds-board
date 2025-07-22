@@ -1,18 +1,23 @@
 import { useEffect, useCallback, useRef } from "react";
-import { createMockWebSocket, type OddsUpdate } from "@/services/mockWebSocket";
+import {
+  createMockWebSocket,
+  type OddsUpdateMessage,
+} from "@/services/mockWebSocket";
 
 /**
  * React hook to manage the mock WebSocket lifecycle.
  *
  * @param onMessage - Callback fired when a new odds update arrives.
  */
-export const useWebSocket = (onMessage: (message: OddsUpdate) => void) => {
+export const useWebSocket = (
+  onMessage: (message: OddsUpdateMessage) => void
+) => {
   const webSocketRef = useRef<ReturnType<typeof createMockWebSocket> | null>(
     null
   );
 
   const handleMessage = useCallback(
-    (message: OddsUpdate) => {
+    (message: OddsUpdateMessage) => {
       onMessage?.(message);
     },
     [onMessage]

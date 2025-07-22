@@ -3,7 +3,7 @@ import { UPDATE_INTERVAL } from "@/utils/constants";
 /**
  * Type for an odds update message.
  */
-export interface OddsUpdate {
+export interface OddsUpdateMessage {
   type: "odds_update";
   data: {
     matchId: number;
@@ -14,7 +14,9 @@ export interface OddsUpdate {
   };
 }
 
-type Listener = (message: OddsUpdate) => void;
+export type WebSocketMessage = OddsUpdateMessage;
+
+type Listener = (message: OddsUpdateMessage) => void;
 
 /**
  * Creates a mock WebSocket-like service.
@@ -48,7 +50,7 @@ export const createMockWebSocket = () => {
   const sendRandomUpdate = () => {
     if (!isConnected) return;
 
-    const update: OddsUpdate = {
+    const update: OddsUpdateMessage = {
       type: "odds_update",
       data: {
         matchId: Math.floor(Math.random() * 10000),

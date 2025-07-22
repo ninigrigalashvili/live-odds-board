@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import {
   SPORTS_CONFIG,
   BETTING_OPTIONS,
@@ -107,9 +106,13 @@ const TEAMS = [
  * Generates random betting odds for a single option
  * @returns Partial betting option object without the name property
  */
-const generateRandomOdds = (): Omit<BettingOption, "name"> => ({
+const generateRandomOdds = (
+  matchIndex: number,
+  category: string,
+  optionName: string
+): Omit<BettingOption, "name"> => ({
   value: (Math.random() * 4 + 1).toFixed(2), // Random odds between 1.00 and 5.00
-  id: uuidv4(), // Unique identifier for tracking selections
+  id: `match-${matchIndex}-${category}-${optionName}`,
 });
 
 /**
@@ -118,17 +121,18 @@ const generateRandomOdds = (): Omit<BettingOption, "name"> => ({
  * @returns Complete betting options object with all markets and odds
  */
 
-const generateBettingOptions = (): Record<string, BettingOption[]> => {
+const generateBettingOptions = (
+  matchIndex: number
+): Record<string, BettingOption[]> => {
   const options: Record<string, BettingOption[]> = {};
   Object.entries(BETTING_OPTIONS).forEach(([category, choices]) => {
     options[category] = choices.map((choice) => ({
       name: choice,
-      ...generateRandomOdds(),
+      ...generateRandomOdds(matchIndex, category, choice),
     }));
   });
   return options;
 };
-
 /**
  * Generates a realistic current score for a match
  * Creates random scores that look believable for different sports
@@ -180,7 +184,7 @@ export const generateMockMatches = (count: number = 10000): Match[] => {
     }
 
     matches.push({
-      id: uuidv4(),
+      id: `match-${i}`, // Use index instead of UUID
       sport,
       sportConfig,
       team1,
@@ -191,7 +195,7 @@ export const generateMockMatches = (count: number = 10000): Match[] => {
         sportConfig.leagues[
           Math.floor(Math.random() * sportConfig.leagues.length)
         ],
-      bettingOptions: generateBettingOptions(),
+      bettingOptions: generateBettingOptions(i),
       isLive: Math.random() > 0.3, // 70% chance of being live
     });
   }

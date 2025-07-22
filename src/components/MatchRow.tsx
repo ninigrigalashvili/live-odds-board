@@ -43,7 +43,7 @@ const MatchRow = memo<MatchRowProps>(
                 {match.league}
               </Text>
               {isMatchLive && (
-                <Badge colorScheme="red" size="sm">
+                <Badge colorPalette="red" size="sm">
                   LIVE
                 </Badge>
               )}
@@ -73,15 +73,17 @@ const MatchRow = memo<MatchRowProps>(
                   {category}
                 </Text>
                 <HStack gap={1}>
-                  {options.map((option) => (
-                    <OddsButton
-                      key={option.id}
-                      option={option}
-                      isSelected={selectedOdds.includes(option.id)}
-                      onClick={() => onOddsSelect(option.id)}
-                      highlight={highlights[option.id]}
-                    />
-                  ))}
+                  {options.map((option) => {
+                    return (
+                      <OddsButton
+                        key={option.id}
+                        option={option}
+                        isSelected={selectedOdds.includes(option.id)}
+                        onClick={() => onOddsSelect(option.id)}
+                        highlight={highlights[option.id]}
+                      />
+                    );
+                  })}
                 </HStack>
               </VStack>
             ))}
